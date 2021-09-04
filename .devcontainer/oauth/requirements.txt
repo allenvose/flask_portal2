@@ -1,0 +1,6 @@
+Flask
+Flask-SQLAlchemy
+Authlib==0.15.3
+python-decouple
+PyMySQL
+sqlalchemy_utils

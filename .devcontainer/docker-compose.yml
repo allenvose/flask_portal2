@@ -1,0 +1,143 @@
+version: '3'
+
+services:
+  flask:
+    build:
+      context: ..
+      dockerfile: .devcontainer/flask/Dockerfile
+      args:
+        VARIANT: 3.9
+        # [Choice] Install Node.js
+        INSTALL_NODE: "false"
+        NODE_VERSION: "lts/*"
+        # On Linux, you may need to update USER_UID and USER_GID below if not your local UID is not 1000.
+        USER_UID: 1000
+        USER_GID: 1000
+    ports:
+      - "5000:5000"
+    networks:
+      - frontend
+      - backend
+    volumes:
+      - ../flask:/home/vscode/flask
+    command: sleep infinity
+  
+  oauth:
+    build:
+      context: ..
+      dockerfile: .devcontainer/oauth/Dockerfile
+      args:
+        VARIANT: 3.9
+        # [Choice] Install Node.js
+        INSTALL_NODE: "false"
+        NODE_VERSION: "lts/*"
+        # On Linux, you may need to update USER_UID and USER_GID below if not your local UID is not 1000.
+        USER_UID: 1000
+        USER_GID: 1000
+    ports:
+      - "5500:5500"
+    networks:
+      - frontend
+      - backend
+    volumes:
+      - ../oauth:/home/vscode/oauth
+    command: sleep infinity
+
+  fastapi:
+    build:
+      context: ..
+      dockerfile: .devcontainer/fastapi/Dockerfile
+      args:
+        VARIANT: 3.9
+        # [Choice] Install Node.js
+        INSTALL_NODE: "false"
+        NODE_VERSION: "lts/*"
+        # On Linux, you may need to update USER_UID and USER_GID below if not your local UID is not 1000.
+        USER_UID: 1000
+        USER_GID: 1000
+    ports:
+      - "8600:8600"
+    networks:
+      - frontend
+      - backend
+    volumes:
+      - ../fastapi:/home/vscode/fastapi
+    command: sleep infinity
+
+  jupyter:
+    build: 
+      context: ..
+      dockerfile: .devcontainer/jupyter/Dockerfile
+    container_name: jupyter
+    environment:
+      - JUPYTER_TOKEN=ryanlion22
+      - CHOWN_HOME=yes
+      - NB_UID=1000
+    ports:
+      - 8888:8888
+      - 8050:8050
+    user: root
+    networks:
+      - frontend
+      - backend
+    volumes:
+      - ../jupyter:/home/allenvose/projects/siriusfederal
+    command: sleep infinity
+  
+  
+  mysqldb:
+    image: mysql:5.7
+    env_file:
+      - mysql/mysql-variables.env
+    volumes:
+      - ../mysql:/etc/mysql/
+    ports: 
+      - 3306:3306
+    networks:
+      - frontend
+      - backend
+
+  neo4j:
+    container_name: neo4j
+    image: neo4j:latest
+    volumes:
+      - ../neo4j/data:/data
+      - ../neo4j/logs:/logs
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+      - "7473:7473"
+    environment:
+      - NEO4J_ACCEPT_LICENSE_AGREEMENT=yes
+      - NEO4J_apoc_export_file_enabled=true
+      - NEO4J_apoc_import_file_enabled=true
+      - NEO4JLABS_PLUGINS=["graph-data-science", "apoc"]
+      - NEO4J_dbms_security_procedures_unrestricted=apoc.*,algo.*
+      - NEO4J_dbms_security_procedures_whitelist=gds.*, apoc.*
+      - NEO4J_dbms_memory_heap_initial__size=512m
+      - NEO4J_dbms_memory_heap_max__size=2G
+      - NEO4J_apoc_uuid_enabled=true
+      - NEO4J_dbms_default__listen__address=0.0.0.0
+      - NEO4J_dbms_allow__upgrade=true
+      - NEO4J_dbms_default__database=neo4j
+      - NEO4J_AUTH=neo4j/test
+    networks:
+      - frontend
+      - backend
+    restart: unless-stopped
+
+  redis:
+    image: redis:latest
+    ports:
+      - 6379:6379
+    volumes:
+      - ../redis:/redis.conf
+    networks:
+      - frontend
+      - backend
+    command: [ "redis-server", "/redis.conf" ]
+  
+networks:
+  frontend:
+  backend:
+  

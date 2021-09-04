@@ -1,0 +1,16 @@
+fastapi[all]
+graphio
+matplotlib
+neo4j
+numpy
+OpenPyXL
+pandas
+py2neo
+pydantic[email, dotenv]
+python-jose[cryptography]
+pymysql
+requests
+SQLAlchemy
+xlrd
+xlwt
+XlsxWriter
